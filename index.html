@@ -53,7 +53,7 @@
 	</head>
 	<body>
 
-		<h2>Connected as <span id="user-name">?</span></h2>
+		<h2>Connected as <span id="user-name">Unkown</span></h2>
 
 		<ul id="messages"></ul>
 
@@ -66,11 +66,15 @@
 		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 		<script>
 			var socket = io();
-			var userName = '';
+			var userName = 'Unknown';
 
 			// Send a message
 			$('form').submit(function(){
-				socket.emit('chat_message', $('#m').val());
+				var dataOut = {
+					origin: userName,
+					msg: $('#m').val()
+				};
+				socket.emit('chat_message', dataOut);
 				$('#m').val('');
 				return false;
 			});
@@ -82,8 +86,9 @@
 			});
 
 			// Receive messages
-			socket.on('chat_message', function(msg){
-				$('#messages').append($('<li>').text(msg));
+			socket.on('chat_message', function(dataIn){
+				var txt = dataIn.origin + ': ' + dataIn.msg;
+				$('#messages').append($('<li>').text(txt));
 			});
 		</script>
 

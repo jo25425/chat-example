@@ -13,16 +13,23 @@ io.on('connection', function(socket){
 	console.log('A user just connected.');
 
 	// Emit to sender only
+	// 1) Assign user name
 	var newUserName = 'user' + users.length;
 	users.push(newUserName);
 	socket.emit('user_name', newUserName);
-	socket.emit('chat_message', 'Oh, hi there!');
 
-	socket.on('chat_message', function(msg){
-		console.log('Message: ' + msg);
+	// 2) Initial greeting
+	var dataOut = {
+		origin: 'Server',
+		msg: 'Oh, hi there!'
+	};
+	socket.emit('chat_message', dataOut);
+
+	socket.on('chat_message', function(dataIn){
+		console.log('Message: ' + dataIn.msg);
 
 		// Emit to all clients
-		io.emit('chat_message', msg);
+		io.emit('chat_message', dataIn);
 	});
 
 	socket.on('disconnect', function(){
