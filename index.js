@@ -1,6 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var users = [];
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
@@ -12,6 +13,9 @@ io.on('connection', function(socket){
 	console.log('A user just connected.');
 
 	// Emit to sender only
+	var newUserName = 'user' + users.length;
+	users.push(newUserName);
+	socket.emit('user_name', newUserName);
 	socket.emit('chat_message', 'Oh, hi there!');
 
 	socket.on('chat_message', function(msg){

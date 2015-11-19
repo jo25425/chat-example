@@ -11,6 +11,14 @@
 			body {
 				font: 13px Helevetica, Arial;
 			}
+			h2 {
+				color: darkgrey;
+				margin: 0.5em;
+				border-bottom: 1px solid darkgrey;
+			}
+			#user-name {
+				style: italic;
+			}
 			form {
 				background: #000;
 				padding: 3px 0px;
@@ -45,7 +53,10 @@
 	</head>
 	<body>
 
+		<h2>Connected as <span id="user-name">?</span></h2>
+
 		<ul id="messages"></ul>
+
 		<form action="">
 			<input id="m" autocomplete="off"/><button>Send</button>
 		</form>
@@ -55,12 +66,19 @@
 		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 		<script>
 			var socket = io();
+			var userName = '';
 
 			// Send a message
 			$('form').submit(function(){
 				socket.emit('chat_message', $('#m').val());
 				$('#m').val('');
 				return false;
+			});
+
+			// Receive user name
+			socket.on('user_name', function(user_name){
+				userName = user_name;
+				$('#user-name').text(userName);
 			});
 
 			// Receive messages
