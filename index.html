@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Socket.IO Chat</title>
+		<title>Super Chat</title>
 		<style>
 			* {
 				margin: 0;
@@ -62,9 +62,12 @@
 				text-align: center;
     		margin-top: 30%;
 			}
+			form#pick-name input {
+				padding: 0.2em;
+			}
 			button#go {
 				margin: 0.5em;
-    		padding: 0.2em;
+    		padding: 0.3em;
     		vertical-align: middle;
 			}
 		</style>
@@ -105,7 +108,7 @@
 			var userName = '...';
 
 			$('#pick-name').submit(function(){
-				userName = $('#n').val();
+				userName = $('#n').val().trim() || 'Idiot-who-won\'t-type-in-their-name';
 				$('#user-name').text(userName);
 				document.getElementById('modal').hidden = true;
 
