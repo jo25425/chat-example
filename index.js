@@ -10,31 +10,39 @@ app.get('/', function(req, res){
 // 'io' is the client side
 // 'socket' is a channel transporting events/communications
 io.on('connection', function(socket){
-	console.log('A user just connected.');
+	var userName = 'User';
 
-	// Emit to sender only
-	// 1) Assign user name
-	var newUserName = 'user' + users.length;
-	users.push(newUserName);
-	socket.emit('user_name', newUserName);
+	socket.on('user_name', function(newUserName){
 
-	// 2) Initial greeting
-	var dataOut = {
-		origin: 'Server',
-		msg: 'Oh, hi there!'
-	};
-	socket.emit('chat_message', dataOut);
+		// 1) Assign user name
+		userName = newUserName;
+		users.push(userName);
+		console.log(userName + ' just connected.');
 
-	socket.on('chat_message', function(dataIn){
-		console.log('Message: ' + dataIn.msg);
+		// Emit to others only
+		socket.broadcast.emit('user_connected', userName);
 
-		// Emit to all clients
-		io.emit('chat_message', dataIn);
+		// 2) Initial greeting
+		var dataOut = {
+			origin: 'Server',
+			msg: 'Oh, hi there, ' + userName + '!'
+		};
+		socket.emit('chat_message', dataOut);
+
+		socket.on('chat_message', function(dataIn){
+			console.log(dataIn.origin + ': ' + dataIn.msg);
+
+			// Emit to all clients
+			io.emit('chat_message', dataIn);
+		});
+
+		socket.on('disconnect', function(){
+			console.log(userName + ' just disconnected.');
+			socket.broadcast.emit('user_disconnected', userName);
+		});
+
 	});
 
-	socket.on('disconnect', function(){
-		console.log('User just disconnected.');
-	});
 });
 
 http.listen(5000, function(){
