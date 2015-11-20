@@ -3,6 +3,13 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var users = [];
 
+function getTime() {
+	return (new Date()).toString().split(' ')[4];
+}
+function msgEntry(msgData) {
+	return '[' + msgData.time + '] ' + msgData.origin + ': ' + msgData.msg
+}
+
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
@@ -25,12 +32,13 @@ io.on('connection', function(socket){
 		// 2) Initial greeting
 		var dataOut = {
 			origin: 'Server',
+			time: getTime(),
 			msg: 'Oh, hi there, ' + userName + '!'
 		};
 		socket.emit('chat_message', dataOut);
 
 		socket.on('chat_message', function(dataIn){
-			console.log(dataIn.origin + ': ' + dataIn.msg);
+			console.log(msgEntry(dataIn));
 
 			// Emit to all clients
 			io.emit('chat_message', dataIn);

@@ -17,7 +17,7 @@
 				color: rgb(130, 224, 255);
 			}
 			#user-name {
-				style: italic;
+				font-style: italic;
 			}
 			form#send-message {
 				background: #000;
@@ -92,6 +92,16 @@
 		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 		<script>
 
+			function addEntry(entryTxt) {
+				$('#messages').append($('<li>').text(entryTxt));
+			}
+			function getTime() {
+				return (new Date()).toString().split(' ')[4];
+			}
+			function msgEntry(msgData) {
+				return '[' + msgData.time + '] ' + msgData.origin + ': ' + msgData.msg
+			}
+
 			var userName = '...';
 
 			$('#pick-name').submit(function(){
@@ -108,6 +118,7 @@
 				$('#send-message').submit(function(){
 					var dataOut = {
 						origin: userName,
+						time: getTime(),
 						msg: $('#m').val()
 					};
 					socket.emit('chat_message', dataOut);
@@ -117,20 +128,20 @@
 
 				// Receive messages
 				socket.on('chat_message', function(dataIn){
-					var txt = dataIn.origin + ': ' + dataIn.msg;
-					$('#messages').append($('<li>').text(txt));
+					var txt = msgEntry(dataIn);
+					addEntry(txt);
 				});
 
 				// Someone else connected
 				socket.on('user_connected', function(user_name){
 					var txt = user_name + ' connected.';
-					$('#messages').append($('<li>').text(txt));
+					addEntry(txt);
 				});
 
 				// Someone else disconnected
 				socket.on('user_disconnected', function(user_name){
 					var txt = user_name + ' disconnected.';
-					$('#messages').append($('<li>').text(txt));
+					addEntry(txt);
 				});
 
 				return false;
