@@ -1,6 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var listeningPort = 5001;
 var users = [];
 
 function getTime() {
@@ -37,6 +38,14 @@ io.on('connection', function(socket){
 		};
 		socket.emit('chat_message', dataOut);
 
+		socket.on('started_typing', function(){
+			socket.broadcast.emit('user_started_typing', userName);
+		});
+
+		socket.on('stopped_typing', function(){
+			socket.broadcast.emit('user_stopped_typing', userName);
+		});
+
 		socket.on('chat_message', function(dataIn){
 			console.log(msgEntry(dataIn));
 
@@ -46,6 +55,8 @@ io.on('connection', function(socket){
 
 		socket.on('disconnect', function(){
 			console.log(userName + ' just disconnected.');
+
+			// Emit to others from this socket
 			socket.broadcast.emit('user_disconnected', userName);
 		});
 
@@ -53,6 +64,6 @@ io.on('connection', function(socket){
 
 });
 
-http.listen(5000, function(){
-	console.log('Listening on *:5000');
+http.listen(listeningPort, function(){
+	console.log('Listening on *:' + listeningPort);
 });
