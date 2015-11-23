@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Super Chat</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+		<script src="index.js"></script>
+	</head>
+	<body>
+
+		<h2 id="header" class="fixed">
+			Connected as <span id="user-name">...<span/>
+		</h2>
+
+		<div id="activity" class="fixed">
+			<ul id="messages"></ul>
+			<div id="typing"></div>
+		</div>
+
+		<form id="send-message" action="" class="fixed">
+			<input id="m" autocomplete="off"/><button id="send">Send</button>
+		</form>
+
+		<div id="modal">
+			<form id="pick-name" action="">
+				<input id="n" autocomplete="off" placeholder="Type in your name..."/><button id="go">Go</button>
+			</form>
+		</div>
+
+	</body>
+</html>

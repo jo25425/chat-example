@@ -1,8 +1,10 @@
+var express = require('express');
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var listeningPort = 5001;
 var users = [];
+var usersTyping = [];
 
 function getTime() {
 	return (new Date()).toString().split(' ')[4];
@@ -12,7 +14,8 @@ function msgEntry(msgData) {
 }
 
 app.get('/', function(req, res){
-	res.sendFile(__dirname + '/index.html');
+	app.use(express.static(__dirname + '/public'));
+	res.sendFile(__dirname + '/public/index.html');
 });
 
 // 'io' is the client side
@@ -39,11 +42,20 @@ io.on('connection', function(socket){
 		socket.emit('chat_message', dataOut);
 
 		socket.on('started_typing', function(){
-			socket.broadcast.emit('user_started_typing', userName);
+			if (usersTyping.indexOf(userName) === -1) {
+				usersTyping.push(userName);
+			}
+			console.log('Now typing:', usersTyping.join(', '));
+			socket.broadcast.emit('user_started_typing', usersTyping);
 		});
 
 		socket.on('stopped_typing', function(){
-			socket.broadcast.emit('user_stopped_typing', userName);
+			var i = usersTyping.indexOf(userName);
+			if (i !== -1) {
+				usersTyping.splice(i, 1);
+			}
+			console.log('Now typing:', usersTyping.join(', '));
+			socket.broadcast.emit('user_stopped_typing', usersTyping);
 		});
 
 		socket.on('chat_message', function(dataIn){
@@ -55,6 +67,17 @@ io.on('connection', function(socket){
 
 		socket.on('disconnect', function(){
 			console.log(userName + ' just disconnected.');
+
+			// Remove from typing users
+			var i = usersTyping.indexOf(userName);
+			if (i !== -1) {
+				usersTyping.splice(i, 1);
+			}
+			// Remove from connected users
+			var j = users.indexOf(userName);
+			if (j !== -1) {
+				users.splice(j, 1);
+			}
 
 			// Emit to others from this socket
 			socket.broadcast.emit('user_disconnected', userName);
